@@ -1,0 +1,42 @@
+services:
+  zurg:
+    image: ghcr.io/debridmediamanager/zurg-testing:latest    
+    container_name: zurg
+    mem_limit: 4584m
+    build: .
+    restart: unless-stopped
+    networks:
+      br0:
+        ipv4_address: 192.168.1.1
+    ports:
+      - 9999:9999
+    volumes:
+      - ./config.yml:/app/config.yml
+      - ./data:/app/data
+      - ./dump:/app/dump
+      - ./plex_update.sh:/app/plex_update.sh
+  rclone:
+    image: rclone/rclone:latest
+    mem_limit: 2gb
+    restart: unless-stopped
+    networks:
+      br0:
+        ipv4_address: 192.168.1.1
+    environment:
+      TZ: Europe/Berlin
+      PUID: 1000
+      PGID: 1000
+    volumes:
+      - /mnt/user/data/realdebrid:/data:rshared
+      - /mnt/user/appdata/blackhole_zurg/zurg/rclone.conf:/config/rclone/rclone.conf
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    devices:
+      - /dev/fuse
+    command: "mount zurg: /data --allow-non-empty --allow-other --attr-timeout 10y --buffer-size 4M --dir-cache-time 120s --poll-interval 60s --vfs-cache-max-age 2M --vfs-cache-max-size 2G --vfs-cache-min-free-space 200M --vfs-cache-mode full --vfs-cache-poll-interval 30s --vfs-disk-space-total-size 6G --vfs-fast-fingerprint --vfs-read-ahead 4M --vfs-read-chunk-size 8M --vfs-read-chunk-size-limit 0 --vfs-read-wait 5ms --vfs-refresh"
+
+networks: 
+  br0:
+    external: true

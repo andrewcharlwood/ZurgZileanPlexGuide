@@ -1,0 +1,136 @@
+# Zurg configuration version
+zurg: v1
+token: RD_TOKEN_HERE
+
+# each token in RD allows some amount of bandwidth daily
+# if you need to go over past this limit (e.g. plex extensive analysis)
+# you can buy a new RD account and specify the token here
+# download_tokens:
+# - ANOTHER_RD_API_TOKEN_1
+# - ANOTHER_RD_API_TOKEN_2
+
+# do not change this if you are running it inside a docker container
+# host: "[::]"
+# port: 9999
+
+# you can protect your zurg server with username+password auth
+# username: yowmamasita
+# password: 1234
+api_rate_limit_per_minute: 175
+torrents_rate_limit_per_minute: 30
+
+# You can proxy all zurg requests like this:
+# proxy: "http://[username:password@]host:port"
+# proxy: "https://[username:password@]host:port"
+# proxy: "socks5://[username:password@]host:port"
+
+# BEWARE! THERE CAN ONLY BE 1 INSTANCE OF ZURG THAT SHOULD REPAIR YOUR TORRENTS
+enable_repair: true
+# Action to take when encountering RAR files (extract, delete, or none)
+rar_action: extract
+# Add file extensions that you want to be considered playable (not moved to the unplayable directory)
+addl_playable_extensions:
+- mp3
+- flac
+
+# How often should zurg look for broken torrents and repair them?
+repair_every_mins: 60
+
+# How often should zurg remount all your downloads?
+downloads_every_mins: 720
+
+# How often should zurg dump your zurgtorrent files to the dump folder?
+# dump_torrents_every_mins: 1440
+
+# RD API timeout setting
+# api_timeout_secs: 60
+
+# RD download timeout setting
+# download_timeout_secs: 10
+
+# api response failures until considered failed
+# retries_until_failed: 2
+
+# Every time zurg runs, it will
+cache_network_test_results: false
+
+# this is useful for ensuring Plex adds your new content immediately
+# uncomment the next line for triggering a partial scan
+# on_library_update: sh plex_update.sh "$@"
+# on_library_update: '& C:\zurg\plex_udpdate.ps1 $args'
+on_library_update: |
+  for arg in "$@"
+  do
+      echo "detected update on: $arg"
+  done
+
+# in order to use media_info_* filters, your torrents need to be analyzed first
+# auto_analyze_new_torrents: true
+
+# true = send link to rclone and rclone will stream the file
+# false = zurg will stream the file
+serve_from_rclone: false
+# verify_download_link: true
+
+
+# force connect to real-debrid ipv6 addresses
+# useful if you are blocked
+# force_ipv6: false
+
+# How many requests in parallel should zurg send to Real-Debrid API?
+# concurrent_workers: 20
+
+# How often should zurg check Real-Debrid API for file changes?
+check_for_changes_every_secs: 10
+
+# if true, it will strictly follow Real-Debrid API filename property
+# setting to true should make zurg more compatible with rdt-client
+retain_rd_torrent_name: true
+
+# note: this is for cosmetic purposes only
+# if true, zurg won't drop file extensions from directories
+retain_folder_name_extension: true
+
+# List of directory definitions and their filtering rules
+directories:
+  torrents:
+    group: 1
+    filters:
+      - regex: /.*/
+  Anime:
+    group: 2
+    group_order: 1
+    filters:
+  TV - 4k:
+    group: 2
+    group_order: 2
+    filters:
+      - and:
+        - or:
+          - any_file_inside_regex: /(?i).*(S\d{2}|E\d{1,3}\D|Series|Season).*/
+          - regex: /(?i).*(S\d{2}|E\d{1,3}\D|Series|Season).*/
+          - any_file_inside_regex: /^\[/
+        - or:
+          - regex: /(?i).*(4K|2160).*/
+          - any_file_inside_regex: /(?i).*(2160).*/
+  TV - HD:
+    group: 2
+    group_order: 3
+    filters:
+      - any_file_inside_regex: /(?i).*(S\d{2}|E\d{1,3}\D|Series|Season).*/
+      - regex: /(?i).*(S\d{2}|E\d{1,3}\D|Series|Season).*/
+      - any_file_inside_regex: /^\[/
+  Films - 4k:
+    group: 2
+    group_order: 4
+    filters:
+      - and:
+        - any_file_inside_not_regex: /.*(E\d\d+).*/
+        - or:
+          - regex: /(?i).*(2160).*/
+          - any_file_inside_regex: /(?i).*(2160).*/
+  Films - HD:
+    group: 2
+    group_order: 5
+    filters:
+      - regex: /.*/
