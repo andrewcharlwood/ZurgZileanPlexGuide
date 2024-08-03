@@ -2,8 +2,11 @@
 
 ## Glossary
 RD = [Real Debrid](https://real-debrid.com/)
+
 DMM = [Debrid Media Manager](https://debridmediamanager.com/search) 
+
 SAR = Sonarr
+
 RAR = Radarr
 
 ---
